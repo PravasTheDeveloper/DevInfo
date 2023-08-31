@@ -1,0 +1,2 @@
+fqgUQCpUqMc1rTod
+mongodb+srv://PRAVAS:<password>@cluster0.pzmvbd9.mongodb.net/?retryWrites=true&w=majority
