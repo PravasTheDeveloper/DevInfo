@@ -1,0 +1,45 @@
+.Login__Page__Styling {
+  background-image: url("../public/Login__Page__Image.gif");
+  background-blend-mode: darken;
+  background-color: rgba(0, 0, 0, 0.7);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.SignUp__Page__Styling {
+
+  background-image: url("../public/SignUp__Page__Image.gif");
+  background-blend-mode: darken;
+  background-color: rgba(0, 0, 0, 0.7);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+  cursor: pointer;
+}
+
+.hashtag{
+  color: aqua;
+}
+
+.bg-salate-05{
+  background-color: #334155af;
+}

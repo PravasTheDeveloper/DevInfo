@@ -22,7 +22,7 @@ const postUploadControl = async (req, res) => {
         // console.log(newPostUpload)
         res.status(200).json({ message: 'Code snippet uploaded successfully' });
     } catch (error) {
-        console.error('Error uploading code snippet', error);
+        // console.error('Error uploading code snippet', error);
         res.status(500).json({ message: 'An error occurred while uploading the code snippet' });
     }
 }

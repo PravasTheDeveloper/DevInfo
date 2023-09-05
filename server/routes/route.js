@@ -1,5 +1,5 @@
 const express = require("express");
-const { register, signin, about } = require("../controller/auth");
+const { register, signin, about, changePasswordcontrol, changeProfileDataControl } = require("../controller/auth");
 const router = express.Router()
 const path = require('path');
 const authenticate = require("../middleware/authenticate");
@@ -13,6 +13,7 @@ const multer = require('multer');
 const PostImgesUpload = require("../controller/PostImgesUpload");
 const { findFriends, followUser } = require("../controller/friendsController");
 const feedController = require("../controller/feedController");
+const { notificationControll, notificationControllTrue } = require("../controller/NotificationController");
 
 
 router.post("/register", register);
@@ -25,14 +26,29 @@ router.get("/about", authenticate, (req, res) => {
 
 
 
-router.get('/codesH', async (req, res) => {
+router.get('/showprofilecode', authenticate, async (req, res) => {
   try {
-    const codes = await Post.find().sort({ createdAt: -1 });
-    // console.log(codes)
-    res.send(codes)
+    const posts = await Post.find({ author: req.id }).sort({ createdAt: -1 });
+    res.send(posts)
   } catch (error) {
     console.error('Error uploading code snippet', error);
     res.status(500).json({ message: 'An error occurred while uploading the code snippet' });
+  }
+});
+
+router.delete('/account/deletepost/:postId', async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    // Use the `findByIdAndRemove` method to delete the post by its ID
+    const deletedPost = await Post.findByIdAndRemove(postId);
+
+    if (!deletedPost) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    return res.status(200).json({ message: 'Post deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -61,7 +77,6 @@ router.post('/uploadprofilepic', authenticate, profilePicUpload, async (req, res
   } catch (err) {
     res.json(err)
   }
-
 });
 
 router.post('/uploadposter', authenticate, posterUpload, async (req, res) => {
@@ -92,20 +107,23 @@ router.post("/logout", async (req, res) => {
   res.status(200).json({ message: 'Logout successful' });
 })
 
-router.post("/singlepost" , async(req , res) => {
-  try{
+router.post("/singlepost", async (req, res) => {
+  try {
     const id = req.body.paramId
-    const response = await Post.findById({_id : id})
+    const response = await Post.findById({ _id: id })
     res.status(200).send(response)
-  }catch(err){
-    res.status(500).json({message : err})
+  } catch (err) {
+    res.status(500).json({ message: err })
   }
 })
 
-
+router.post("/changeprofiledata" , authenticate , changeProfileDataControl)
+router.post("/changepassword", authenticate, changePasswordcontrol)
 router.post('/postupload', authenticate, PostImgesUpload, postUploadControl);
-router.get('/users-not-followed' , authenticate , findFriends)
-router.get("/feed" , authenticate , feedController)
-router.post("/followuser" , authenticate , followUser)
+router.get('/users-not-followed', authenticate, findFriends)
+router.get("/feed", authenticate, feedController)
+router.post("/followuser", authenticate, followUser)
+router.get("/notification", authenticate, notificationControll)
+router.post("/notificationread", authenticate, notificationControllTrue);
 
 module.exports = router

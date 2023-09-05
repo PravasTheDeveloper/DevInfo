@@ -15,7 +15,7 @@ const findFriends = async (req, res) => {
         });
 
         res.json(usersNotFollowed);
-        console.log(usersNotFollowed)
+        // console.log(usersNotFollowed)
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -56,7 +56,7 @@ const followUser = async (req, res) => {
         }
 
     } catch (error) {
-        console.error(error);
+        // console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
 };
@@ -73,7 +73,7 @@ const unfollowUser = async (req, res) => {
         await userToUnfollow.save();
         res.json({ message: 'Unfollowed successfully' });
     } catch (error) {
-        console.error(error);
+        // console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
 };

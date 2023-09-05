@@ -12,9 +12,11 @@ const feedController = async (req, res) => {
         const posts = await Post.find({
             $or: [
                 { user: { $in: followingIds } },
-                { user: { $in: followersIds } }
+                { user: { $in: followersIds } },
+                { author: { $in: req.id } },
+                { author: { $ne: req.id } }
             ]
-        });
+        }).sort({ createdAt: -1 });
 
         if (posts.length > 0) {
             res.json(posts);
@@ -25,7 +27,7 @@ const feedController = async (req, res) => {
             
         }
     } catch (error) {
-        console.error(error);
+        // console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
 }

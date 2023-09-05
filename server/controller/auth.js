@@ -24,9 +24,11 @@ const register = async (req, res) => {
                 const username = "hello"
                 if (password === cpassword) {
                     const registerEmployee = new User({
-                        name, email, phone, profession, password, gender, profile_pic , username
+                        name, email, phone, profession, password, gender, profile_pic, username
                     });
 
+                    // console.log(registerEmployee)
+                    registerEmployee.notifications.push({ type: "Welcome", content: "Welcome to Devinfo" })
                     const registered = await registerEmployee.save();
 
                     if (registered) {
@@ -36,8 +38,8 @@ const register = async (req, res) => {
                             expires: new Date(Date.now() + 25892000000),
                             httpOnly: true
                         })
-                        
-                        console.log(registerEmployee)
+
+                        // console.log(registerEmployee)
                         res.status(200).json({ messege: "Detail Saved" })
                     }
                 } else {
@@ -46,7 +48,7 @@ const register = async (req, res) => {
             }
         } catch (err) {
             res.status(400).json({ error: `${err}` })
-            console.log(err);
+            // console.log(err);
         }
 
     }
@@ -71,7 +73,7 @@ const signin = async (req, res) => {
                 })
 
                 if (isMatch) {
-                    console.log("Saved")
+                    // console.log("Saved")
                     res.send("LOGIN SUCCESSFULL");
                 } else {
                     res.status(400).json({ error: "Invalid Crediential !" });
@@ -83,14 +85,81 @@ const signin = async (req, res) => {
 
         } catch (error) {
             res.status(400).json({ error: "Something Went Wrong" });
-            console.log(error);
+            // console.log(error);
         }
     }
 }
 
 const about = async (req, res) => {
     res.send(req.rootUser);
-    console.log(req.rootUser)
+    // console.log(req.rootUser)
 }
 
-module.exports = { register, signin, about }
+const changePasswordcontrol = async (req, res) => {
+    const { old_pass, new_pass } = req.body;
+    try {
+        const userInfo = await User.findById(req.id)
+
+        const passwordMathch = await bcrypt.compare(old_pass, userInfo.password)
+        const passwordMathchsame = await bcrypt.compare(new_pass, userInfo.password)
+        if (passwordMathchsame === true) {
+            res.status(402).json({ messege: "Old And New Password not be same" })
+        } else {
+            if (passwordMathch === true) {
+                userInfo.password = new_pass
+                userInfo.notifications.push({ type: "Password Changed", content: "Your Password Change sucessfully" })
+                const userInfoSave = await userInfo.save()
+                if (userInfoSave) {
+                    res.status(200).json({ messege: "Saved" })
+                }
+            } else {
+                res.status(401).json({ messege: "Old Password not match" })
+            }
+        }
+
+    } catch (err) {
+        res.send(500).json({ messege: err })
+    }
+}
+
+
+const changeProfileDataControl = async (req, res) => {
+    const { name, email, phone, profession, gender } = req.body;
+    try {
+        const UserExist = await User.findById(req.id);
+
+        if (!UserExist) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        if (gender === "male") {
+            profile_pic = "male.gif";
+        } else if (gender === "female") {
+            profile_pic = "female.gif";
+        } else if (gender === "other") {
+            profile_pic = "other.gif";
+        } else {
+            return res.status(400).json({ error: "Invalid gender" });
+        }
+
+        UserExist.name = name;
+        UserExist.email = email;
+        UserExist.phone = phone;
+        UserExist.profession = profession;
+        UserExist.gender = gender;
+
+        UserExist.notifications.push({ type: "Detail Change", content: "Your Details Change Successful" })
+        const changedDetails = await UserExist.save();
+
+        if (changedDetails) {
+            res.status(200).json({ messege: "Detail Saved" })
+        }
+
+
+    } catch (err) {
+        res.status(400).json({ error: `${err}` })
+        console.log(err);
+    }
+}
+
+module.exports = { register, signin, about, changePasswordcontrol, changeProfileDataControl }
