@@ -41,14 +41,16 @@ const postSchema = new mongoose.Schema({
     ],
     likes: [
         {
-            user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+            user: { type: mongoose.Schema.Types.ObjectId },
         },
     ],
     comments: [
         {
-            user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+            user: { type: mongoose.Schema.Types.ObjectId },
             content: { type: String, required: true },
             createdAt: { type: Date, default: Date.now },
+            username: { type: String },
+            profile_pic: { type: String }
         },
     ],
 }, { timestamps: true });

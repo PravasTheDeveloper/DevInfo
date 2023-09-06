@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import postWindowReducer from "./PostWindowRedux";
 import UserAuthData from "./UserAuthData";
 import NotificationReducer from "./NotificationRedux"
+import PostDatareducer from "./PostShowRedux"
 
 const middleware = [];
 
@@ -14,6 +15,7 @@ const store = configureStore({
     postwindow: postWindowReducer,
     userauth: UserAuthData,
     notification : NotificationReducer,
+    postdata : PostDatareducer,
     middleware
   }
 })

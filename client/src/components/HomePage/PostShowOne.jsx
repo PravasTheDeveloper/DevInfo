@@ -10,6 +10,7 @@ import { dracula } from '@uiw/codemirror-theme-dracula';
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import SpinnerLoaders from '../Loaders/SpinnerLoaders';
+import CommentSection from './CommentSection';
 
 function PostShowOne() {
     const [DataStatus, setDataStatus] = useState([])
@@ -18,6 +19,8 @@ function PostShowOne() {
     const dispatch = useDispatch()
     const paramId = useParams().id
     const [loader, setloader] = useState(true)
+    const [CommentSectionshow, setCommentSectionshow] = useState(false)
+    const [CommentData, setCommentData] = useState([])
 
     function formatTime(timestamp) {
         const now = new Date();
@@ -53,6 +56,8 @@ function PostShowOne() {
         setDataStatus(data)
         sethashtags(data.hashtags)
         setImages(data.images)
+        setCommentData(data.comments)
+        console.log(data)
     }
 
     useEffect(() => {
@@ -64,7 +69,7 @@ function PostShowOne() {
 
     }, [])
 
-// console.log(DataStatus)
+    // console.log(DataStatus)
     return (
         <>
             <NavBar />
@@ -74,8 +79,10 @@ function PostShowOne() {
                     <div className='w-full h-auto  border-b border-slate-300'>
                         <div className='w-full h-auto flex items-center mb-4'>
                             <div className='w-10 h-10 overflow-hidden rounded-full'>
-                                <img src={UserAuthData.profile_pic === "male.gif" || UserAuthData.profile_pic === "female.gif" ? `./anonimusprofilepic/${UserAuthData.profile_pic}` : `/uploads/profiles/${DataStatus.author}/profileelement/${DataStatus.profile_pic}`} className='w-full h-full' alt={`${DataStatus.profile_pic}`} />
+                                <img src={DataStatus.profile_pic === "male.gif" || DataStatus.profile_pic === "female.gif" ? `/anonimusprofilepic/${DataStatus.profile_pic}` : `/uploads/profiles/${DataStatus.author}/profileelement/${DataStatus.profile_pic}`} className='w-full h-full' alt={`${DataStatus.profile_pic}`} />
+                                <img src="" alt="" />
                             </div>
+                            {/* {DataStatus.profile_pic} */}
                             <div className='ml-5'>
                                 <div className='w-full font-semibold text-[16px]'>
                                     {DataStatus.userName}
@@ -127,7 +134,7 @@ function PostShowOne() {
                                 Like
                             </div>
                         </div>
-                        <div className='text-2xl flex items-center hover:bg-slate-200 px-10 py-1 rounded duration-200 cursor-pointer'>
+                        <div className='text-2xl flex items-center hover:bg-slate-200 px-10 py-1 rounded duration-200 cursor-pointer' onClick={() => { setCommentSectionshow(!CommentSectionshow) }}>
                             <BiCommentDetail className='mt-[2px] mr-2' />
                             <div className='text-base font-semibold'>
                                 Comment
@@ -140,6 +147,10 @@ function PostShowOne() {
                             </div>
                         </div>
                     </div>
+                    {/* Comment Section */}
+                    {
+                       <CommentSection id={DataStatus.id} comments={CommentData} />
+                    }
                 </div>
 
             </div>

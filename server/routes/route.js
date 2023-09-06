@@ -117,7 +117,7 @@ router.post("/singlepost", async (req, res) => {
   }
 })
 
-router.post("/changeprofiledata" , authenticate , changeProfileDataControl)
+router.post("/changeprofiledata", authenticate, changeProfileDataControl)
 router.post("/changepassword", authenticate, changePasswordcontrol)
 router.post('/postupload', authenticate, PostImgesUpload, postUploadControl);
 router.get('/users-not-followed', authenticate, findFriends)
@@ -125,5 +125,72 @@ router.get("/feed", authenticate, feedController)
 router.post("/followuser", authenticate, followUser)
 router.get("/notification", authenticate, notificationControll)
 router.post("/notificationread", authenticate, notificationControllTrue);
+
+router.get("/userdataprofile/:userId", async (req, res) => {
+  const userId = req.params.userId
+
+  const user = await User.findById(userId);
+  console.log(user)
+  res.status(200).json({ user })
+})
+
+router.get("/userposteddata/:userId", async (req, res) => {
+  const userId = req.params.userId
+
+  const posteddata = await Post.find({ author: userId }).sort({ createdAt: -1 });;
+  // console.log(user)
+  res.status(200).send(posteddata)
+})
+
+router.post("/likePost", authenticate, async (req, res) => {
+  const PostId = req.body.id;
+  const userId = req.id
+
+  try {
+    const PostFind = await Post.findById(PostId)
+    const userLiked = PostFind.likes.some(like => like.user.toString() == userId);
+
+    if (userLiked) {
+      PostFind.likes = PostFind.likes.filter(like => like.user.toString() != userId);
+    } else {
+      PostFind.likes.push({ user: userId });
+    }
+
+    const Savedlike = await PostFind.save()
+
+    if (Savedlike) {
+      res.status(200).json({ messege: "Success" })
+    } else {
+      res.status(401).json({ messege: "SomeThing Went Wrong" })
+    }
+
+  } catch (err) {
+    res.status(400).json({ messege: "SomeThing Went Wrong" })
+  }
+})
+
+router.post("/addcomment", authenticate, async (req, res) => {
+  const content = req.body.CommentValue
+  const id = req.body.id
+  const user = req.rootUser._id
+  const username = req.rootUser.name
+  const profile_pic = req.rootUser.profile_pic
+
+  try {
+    const findPost = await Post.findById(id)
+    findPost.comments.push({ user, content, username, profile_pic })
+
+    const savedComments = await findPost.save();
+
+    if (savedComments) {
+      res.status(200).json("success")
+    } else {
+      res.status(401).json('error')
+    }
+  } catch (err) {
+    res.status(400).json(`Error is ${err}`)
+  }
+})
+
 
 module.exports = router

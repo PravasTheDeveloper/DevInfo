@@ -2,21 +2,24 @@ import React, { useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { dracula } from "@uiw/codemirror-theme-dracula"
-import { useSelector } from 'react-redux';
-import { AiOutlineDelete, AiOutlineLike } from 'react-icons/ai';
-import { BiCommentDetail } from 'react-icons/bi';
+import { useDispatch, useSelector } from 'react-redux';
+import { AiFillLike, AiOutlineDelete, AiOutlineLike } from 'react-icons/ai';
+import { BiCommentDetail, BiSolidCommentDetail } from 'react-icons/bi';
 import { PiShareFat } from 'react-icons/pi';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { likeAndUnlikeButton, postLikeHandle } from '../../redux/PostShowRedux';
+import CommentSection from './CommentSection';
 
-function PostDataShow({ name, images, code, date, title, hashtag, id, profile_pic, author }) {
+function PostDataShow({ name, images, code, date, title, hashtag, id, profile_pic, author, likes, comments }) {
 
     const UserAuthData = useSelector(state => state.userauth.userData);
     const [deleteBar, setdeleteBar] = useState(false)
+    const dispatch = useDispatch()
+    const [CommentSectionshow, setCommentSectionshow] = useState(false)
 
     const DeletePost = async (authid) => {
         try {
-            // Send a DELETE request to the server to delete the post
             const response = await fetch(`deletepost/${authid}`, {
                 method: 'DELETE',
             });
@@ -56,7 +59,13 @@ function PostDataShow({ name, images, code, date, title, hashtag, id, profile_pi
         }
     }
 
+    const LinkButtonHandle = (id) => {
+        const userId = UserAuthData._id
+        dispatch(postLikeHandle({ id, userId }))
+        dispatch(likeAndUnlikeButton({ id, userId }))
+    }
 
+    // console.log()
     return (
         <>
             <div className='w-full h-auto bg-white shadow-xl rounded-md mb-10 p-5 relative'>
@@ -68,9 +77,9 @@ function PostDataShow({ name, images, code, date, title, hashtag, id, profile_pi
                         <img src={profile_pic === "male.gif" || profile_pic === "female.gif" ? `/anonimusprofilepic/${profile_pic}` : `/uploads/profiles/${author}/profileelement/${profile_pic}`} className='w-full h-full' alt={`${profile_pic}`} />
                     </div>
                     <div className='ml-5'>
-                        <div className='w-full font-semibold text-[16px]'>
+                        <Link to={`/account/${author}`} className='w-full font-semibold text-[16px]'>
                             {name}
-                        </div>
+                        </Link>
                         <div className='text-[12px]'>
                             {formatTime(date)}
                         </div>
@@ -168,15 +177,27 @@ function PostDataShow({ name, images, code, date, title, hashtag, id, profile_pi
                         />
                     </div>
                 </Link>
-                <div className='w-full h-[40px] bg-white mt-5 flex justify-around items-center text-slate-600'>
-                    <div className='text-2xl flex items-center hover:bg-slate-200 px-10 py-1 rounded duration-200 cursor-pointer'>
-                        <AiOutlineLike className='mt-[-5px] mr-2' />
+                <div className='w-full h-[40px] bg-white mt-5 flex justify-around items-center text-slate-600 border-t border-b'>
+
+                    {/* Link Button */}
+
+                    <div className='text-2xl flex items-center hover:bg-slate-200 px-10 py-1 rounded duration-200 cursor-pointer' onClick={() => LinkButtonHandle(id)}>
+
+                        {
+                            likes.some(item => item.user == UserAuthData._id) === true ? <AiFillLike className='text-cyan-600 mt-[-5px] mr-2' /> : <AiOutlineLike className='mt-[-5px] mr-2' />
+                        }
+
                         <div className='text-base font-semibold'>
-                            Like
+                            Like {likes.length}
                         </div>
                     </div>
-                    <div className='text-2xl flex items-center hover:bg-slate-200 px-10 py-1 rounded duration-200 cursor-pointer'>
-                        <BiCommentDetail className='mt-[2px] mr-2' />
+
+
+                    <div className='text-2xl flex items-center hover:bg-slate-200 px-10 py-1 rounded duration-200 cursor-pointer' onClick={() => { setCommentSectionshow(!CommentSectionshow) }}>
+                        {
+                            CommentSectionshow === true ? <BiSolidCommentDetail className='mt-[2px] mr-2 text-cyan-600' /> : <BiCommentDetail className='mt-[2px] mr-2' />
+                        }
+
                         <div className='text-base font-semibold'>
                             Comment
                         </div>
@@ -188,6 +209,14 @@ function PostDataShow({ name, images, code, date, title, hashtag, id, profile_pi
                         </div>
                     </div>
                 </div>
+
+                {/* Comment Section */}
+                {
+                    CommentSectionshow === true ? <CommentSection id={id} comments={comments} /> : null
+                }
+
+
+
             </div>
             <div className={deleteBar === true ? 'h-screen w-full bg-salate-05 fixed top-0 left-0 z-50 flex justify-center items-center' : 'hidden'}>
                 <div className='w-[600px] h-[200px] bg-white rounded-md'>
